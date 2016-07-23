@@ -1,0 +1,14 @@
+<h3>Login</h3>
+
+<form ng-submit='vm.login(c)'>
+	<input type='text' placeholder='Email' required ng-model='c.email'>
+	<input type='type' placeholder='Password' required ng-model='c.password'>
+	<button>Login</button>
+</form>
+
+<form ng-submit='vm.register(d)'>
+	<input type='text' placeholder='Email' ng-model='d.email'required>
+	<input type='type' placeholder='Password' ng-model='d.password' required>
+	<input type='type' placeholder='Confirm Password' required>
+	<button>Register</button>
+</form>	

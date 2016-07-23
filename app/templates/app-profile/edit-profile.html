@@ -1,0 +1,14 @@
+<div>
+<h3>Edit Profile</h3>
+
+<form ng-submit='vm.editProfile(user)'
+	<input type="text" placeholder='First Name' required ng-model='user.first'></input>
+	<input type="text" placeholder='Last Name' required ng-model='user.last'></input>
+	<input type="text" placeholder='Street Address' required ng-model='user.address'></input>
+	<input type="text" placeholder='City' required ng-model='user.city'></input>
+	<input type="text" placeholder='State' required ng-model='user.state'></input>
+	<input type="text" placeholder='Zip Code' required ng-model='user.zip'></input>
+	<input type="text" placeholder='Country' required ng-model='user.country'></input>
+	<button>Submit</button>
+	<button>Other</button>
+</form>
