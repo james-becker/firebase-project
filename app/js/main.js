@@ -175,10 +175,17 @@ var EditProfileCtrl = function EditProfileCtrl(ProfileService) {
 	var vm = this;
 
 	vm.editProfile = editProfile;
+	vm.addProfile = addProfile;
 
 	function editProfile(user) {
-		ProfileService.editProfile;
-	};
+		console.log('editing profile'); //don't forget to put 'user'
+		ProfileService.editProfile(user); //remember to call function
+	}
+
+	function addProfile(user) {
+		console.log('adding profile'); //don't forget to put 'user'
+		ProfileService.addProfile(user); //don't forget to put 'user'
+	}
 };
 EditProfileCtrl.$inject = ['ProfileService'];
 
@@ -226,23 +233,39 @@ var _servicesProfileService2 = _interopRequireDefault(_servicesProfileService);
 angular.module('app.profile', []).controller('ProfileCtrl', _ctrlProfileCtrl2['default']).controller('EditProfileCtrl', _ctrlEditProfileCtrl2['default']).service('ProfileService', _servicesProfileService2['default']);
 
 },{"./ctrl/edit-profile.ctrl":6,"./ctrl/profile.ctrl":7,"./services/profile.service":9}],9:[function(require,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
 	value: true
 });
-var ProfileService = function ProfileService() {
+var ProfileService = function ProfileService($firebaseArray) {
+	//we want an array instead of an object (for working with angular)
 
+	this.addProfile = addProfile;
 	this.editProfile = editProfile;
 
-	function editProfile(user) {
-		console.log(user);
-	};
+	function addProfile(data) {
+		// gets from input box
+		console.log('add');
+
+		var user = firebase.auth().currentUser; // we want to see OUR profile.
+
+		var userRef = firebase.database().ref('users/' + user.uid + '/profile');
+		var userArray = $firebaseArray(userRef);
+
+		userArray.$add({ // #add is like .push, but for angular
+			email: user.email, // include user email from firebase in our object
+			id: user.uid, // include user id from firebase in our object
+			first: data.first
+		});
+	}
+
+	function editProfile(data) {}
 };
 
-ProfileService.$inject = [];
-exports["default"] = ProfileService;
-module.exports = exports["default"];
+ProfileService.$inject = ['$firebaseArray'];
+exports['default'] = ProfileService;
+module.exports = exports['default'];
 
 },{}],10:[function(require,module,exports){
 'use strict';
