@@ -16,13 +16,10 @@ let LoginCtrl = function (LoginService, $state) {
 				console.log('no user'); // if not logged in, take to login page --- jjb!
 				$state.go('login');
 			}
-
 	});
-
 
 	function login (data) {
 		LoginService.login(data);
-
 	};
 
 	function register (data) {

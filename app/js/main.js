@@ -177,11 +177,32 @@ var EditProfileCtrl = function EditProfileCtrl(ProfileService) {
 	vm.editProfile = editProfile;
 	vm.addProfile = addProfile;
 
+	var currentUser = undefined;
+
+	firebase.auth().onAuthStateChanged(function (user) {
+		if (user) {
+			(function () {
+				var checkLength = function checkLength() {
+					if (vm.user <= 0) {
+						setTimeout(function () {
+							console.log('noUser');
+							checkLength();
+						}, 500);
+					}
+				};
+
+				currentUser = ProfileService.getProfile(user);
+				vm.user = currentUser;
+				console.log(vm.user);
+			})();
+		} else {
+			vm.noUser = true; // later we're going to pass this to an Angular directive such as ng-show.
+		}
+	});
 	function editProfile(user) {
 		console.log('editing profile'); //don't forget to put 'user'
 		ProfileService.editProfile(user); //remember to call function
 	}
-
 	function addProfile(user) {
 		console.log('adding profile'); //don't forget to put 'user'
 		ProfileService.addProfile(user); //don't forget to put 'user'
@@ -198,17 +219,30 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
 	value: true
 });
-var ProfileCtrl = function ProfileCtrl($state) {
+var ProfileCtrl = function ProfileCtrl($state, ProfileService) {
+
 	var vm = this;
 
 	vm.editProfile = editProfile;
+
+	var currentUser = undefined;
+
+	firebase.auth().onAuthStateChanged(function (user) {
+		if (user) {
+			currentUser = ProfileService.getProfile(user);
+			vm.data = currentUser;
+			console.log(currentUser);
+		} else {
+			vm.noUser = true; // later we're going to pass this to an Angular directive such as ng-show.
+		}
+	});
 
 	function editProfile() {
 		$state.go('root.edit-profile');
 	}
 };
 
-ProfileCtrl.$inject = ['$state'];
+ProfileCtrl.$inject = ['$state', 'ProfileService'];
 exports['default'] = ProfileCtrl;
 module.exports = exports['default'];
 
@@ -238,11 +272,18 @@ angular.module('app.profile', []).controller('ProfileCtrl', _ctrlProfileCtrl2['d
 Object.defineProperty(exports, '__esModule', {
 	value: true
 });
-var ProfileService = function ProfileService($firebaseArray) {
-	//we want an array instead of an object (for working with angular)
+var ProfileService = function ProfileService($firebaseArray, $state) {
+	//we want an array instead of an object (for working with angular), here we're injecting it into our service.
 
+	this.getProfile = getProfile;
 	this.addProfile = addProfile;
 	this.editProfile = editProfile;
+
+	function getProfile(user) {
+		var ref = firebase.database().ref('users/' + user.uid + '/profile'); //create reference to our database!
+		var array = $firebaseArray(ref);
+		return array;
+	}
 
 	function addProfile(data) {
 		// gets from input box
@@ -260,10 +301,29 @@ var ProfileService = function ProfileService($firebaseArray) {
 		});
 	}
 
-	function editProfile(data) {}
+	function editProfile(data) {
+		console.log(data);
+		var user = firebase.auth().currentUser; // just a method to get the user object from Firebase. Nothing to do with angular. We want to access uid so that when we edit the database we save to the correct path.
+
+		var ref = firebase.database().ref('users/' + user.uid + '/profile'); //.ref() will default to root unless you give it a path.
+
+		var array = $firebaseArray(ref); //this is Angular.  REF  is  here
+		var _$id = data.$id;
+		console.log(_$id);
+
+		setTimeout(function () {
+			var item = array.$getRecord(data.$id); //$getRecord is Angular-Fire method.
+			console.log(item);
+
+			item.first = data.first;
+			array.$save(item).then(function () {
+				$state.go('root.profile');
+			}); // $save() is an angualr fire thing.
+		}, 500);
+	}
 };
 
-ProfileService.$inject = ['$firebaseArray'];
+ProfileService.$inject = ['$firebaseArray', '$state'];
 exports['default'] = ProfileService;
 module.exports = exports['default'];
 
@@ -312,9 +372,7 @@ var config = {
 };
 _firebase2['default'].initializeApp(config);
 
-_angular2['default'].module('app', ['app.core', 'app.profile', 'firebase']);
-
-console.log('Hello, World');
+_angular2['default'].module('app', ['app.core', 'app.profile', 'firebase']); // everything comes together here.
 
 },{"./app-core/index":4,"./app-profile/index":8,"angular":13,"angular-ui-router":11,"angularfire":15,"firebase":16,"jquery":18,"moment":19}],11:[function(require,module,exports){
 /**

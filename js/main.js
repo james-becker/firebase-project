@@ -22,7 +22,4 @@ import moment from 'moment';
   firebase.initializeApp(config);
 
 angular
-	.module('app', ['app.core','app.profile','firebase'])
-
-
-console.log('Hello, World');
+	.module('app', ['app.core','app.profile','firebase']) // everything comes together here.
